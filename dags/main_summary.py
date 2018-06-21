@@ -265,6 +265,32 @@ main_summary_glue = EMRSparkOperator(
     uri="https://raw.githubusercontent.com/mozilla/telemetry-airflow/master/jobs/update_glue.sh",
     dag=dag)
 
+search_clients_daily_to_s3 = EMRSparkOperator(
+    task_id="search_clients_daily_to_s3",
+    job_name="Search Clients Daily to S3",
+    owner="nawong@mozilla.com",
+    email=["telemetry-alerts@mozilla.com", "nawong@mozilla.com"],
+    execution_timeout=timedelta(hours=5),
+    instance_count=10,
+    env={"run_date_string": "{{ ds_nodash }}",
+         "sample_id": "53",
+         "vs": "v2"},
+    uri="https://raw.githubusercontent.com/mozilla/ltv-methodology/master/src/spark/search_clients_daily_to_s3.py?token=AIB6N2Qr1NJ9EnvvNanYlrI1CagddRNpks5bNRmawA%3D%3D",
+    dag=dag)
+
+clients_daily_to_s3 = EMRSparkOperator(
+    task_id="clients_daily_to_s3",
+    job_name="Clients Daily to S3",
+    owner="nawong@mozilla.com",
+    email=["telemetry-alerts@mozilla.com", "nawong@mozilla.com"],
+    execution_timeout=timedelta(hours=5),
+    instance_count=10,
+    env={"run_date_string": "{{ ds_nodash }}",
+         "sample_id": "53",
+         "vs": "v6"},
+    uri="https://raw.githubusercontent.com/mozilla/ltv-methodology/master/src/spark/clients_daily_to_s3.py?token=AIB6NxfmQccH8f3KtSjjmJDZJ_hJIhVVks5bNRmFwA%3D%3D",
+    dag=dag)
+
 
 main_summary_schema.set_upstream(main_summary)
 
@@ -295,3 +321,6 @@ retention.set_upstream(main_summary)
 client_count_daily_view.set_upstream(main_summary)
 
 main_summary_glue.set_upstream(main_summary)
+
+search_clients_daily_to_s3.set_upstream(search_clients_daily)
+clients_daily_to_s3.set_upstream(clients_daily)
